@@ -12,24 +12,33 @@ class RotaryDialer {
 		int pinPulse;
 		bool hasCompletedNumber;
 		int number;
-
+		unsigned long lastStateChangeMillis;
 		enum State {
 			WAITING,
-			LISTENING_NOPULSE,
-			LISTENING_PULSE
+			LOWPULSE,
+			HIGHPULSE
 		};
 		enum State state;
-		unsigned long lastStateChangeMillis;
 
 		/**
-		 * Change state, but only if enough time has elapsed since
+		 * Change state
+		 */
+		bool changeState(enum State newState);
+		
+		/**
+		 * Check if enough time has elapsed since
 		 * the last state change (to protect from noise).
 		 */
-		bool changeStateIfDebounced(enum State newState);
+		bool ifDebounced();
 
 		/**
-		 * To be called when ready returns HIGH (when the rotor returns
-		 * to its rest position); save the number, if valid.
+		 * 
+		 */
+		void startDial();
+
+		/**
+		 * To be called when when the rotor returns
+		 * to its rest position; save the number, if valid.
 		 */
 		void completeDial();
 	public:
@@ -55,17 +64,11 @@ class RotaryDialer {
 		bool update();
 
 		/**
-		 * @return whether a new number has been dialed since the last
-		 *	getNextNumber call
-		 */
-		bool hasNextNumber();
-
-		/**
 		 * Get the most recently dialed number. After this is called,
 		 * hasNextNumber will return false until a new number is dialed.
 		 * @return the most recently dialed number, and clear
 		 *	hasNextNumber
 		 */
-		int getNextNumber();
+		int getLastNumber();
 };
 

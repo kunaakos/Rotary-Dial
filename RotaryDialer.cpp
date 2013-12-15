@@ -25,25 +25,32 @@ void RotaryDialer::setup() {
 	lastStateChangeMillis = millis();
 }
 
-bool RotaryDialer::changeStateIfDebounced(enum State newState) {
+bool RotaryDialer::ifDebounced() {
 	unsigned long currentMillis = millis();
-	if (currentMillis < lastStateChangeMillis) {
-		// clock wrapped; ignore (but could figure it out in this case)
+	if (currentMillis < lastStateChangeMillis) // clock wrapped; ignore (but could figure it out in this case)
+	{
 		lastStateChangeMillis = currentMillis;
 		return false;
-	} else if (currentMillis - lastStateChangeMillis > DEBOUNCE_DELAY) {
-		state = newState;
-		lastStateChangeMillis = currentMillis;
+	} else if (currentMillis - lastStateChangeMillis > DEBOUNCE_DELAY) // OK to change state
+	{
 		return true;
-	} else {
+	} else // not OK to change state
+	{
 		return false;
 	}
 }
 
+bool RotaryDialer::changeState(enum State newState) {
+	state = newState;
+	lastStateChangeMillis = millis();
+}
+
+void RotaryDialer::startDial() {
+  hasCompletedNumber = false;
+	number = 0;
+}
+
 void RotaryDialer::completeDial() {
-	if (!changeStateIfDebounced(WAITING)) {
-		return;
-	}
 	if (number > 0 && number <= 10) {
 		if (number == 10) {
 			number = 0;
@@ -57,43 +64,53 @@ bool RotaryDialer::update() {
 	int pulseStatus = digitalRead(pinPulse);
 
 	switch(state) {
-		case WAITING:
-			if (readyStatus == LOW
-				&& changeStateIfDebounced(LISTENING_NOPULSE))
-			{
-				hasCompletedNumber = false;
-				number = 0;
-			}
-			break;
-		case LISTENING_NOPULSE:
-			if (readyStatus == HIGH) {
-				completeDial();
-			} else if (pulseStatus == HIGH) {
-				changeStateIfDebounced(LISTENING_PULSE);
-			}
-			break;
-		case LISTENING_PULSE:
-			if (readyStatus == HIGH) {
-				completeDial();
-			} else if (pulseStatus == LOW
-				&& changeStateIfDebounced(LISTENING_NOPULSE))
-			{
-				number++;
-			}
-			break;
-	}
+    
+    case WAITING:
+    	//Serial.println("WAIT");
+      if (readyStatus == LOW && pulseStatus == LOW && ifDebounced())
+      {
+        changeState(LOWPULSE);
+        startDial(); 
+      }
+      break;
+
+    case LOWPULSE:
+      //Serial.println("LOW ");
+      if (readyStatus == HIGH && pulseStatus == HIGH && ifDebounced())
+      {
+        changeState(HIGHPULSE);
+        number++;
+        
+      } else if (readyStatus == HIGH && pulseStatus == LOW && ifDebounced())
+      {
+        changeState(WAITING);
+        completeDial(); 
+      }
+      break;
+
+    case HIGHPULSE:
+    	//Serial.println("HIGH");
+      if (readyStatus == LOW && pulseStatus == LOW && ifDebounced())
+      {
+        changeState(LOWPULSE);
+      } else if (readyStatus == HIGH && pulseStatus == LOW && ifDebounced())
+      {
+        changeState(WAITING); 
+        completeDial();
+      }
+      break;
+  }
+
 	return hasCompletedNumber;
 }
 
-bool RotaryDialer::hasNextNumber() {
-	return hasCompletedNumber;
-}
-
-int RotaryDialer::getNextNumber() {
-	if (hasCompletedNumber) {
+int RotaryDialer::getLastNumber() {
+	if (hasCompletedNumber) 
+	{
 		hasCompletedNumber = false;
 		return number;
-	} else {
+	} else 
+	{
 		return NO_NUMBER;
 	}
 }
