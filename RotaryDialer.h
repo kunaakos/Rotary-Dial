@@ -25,7 +25,7 @@ class RotaryDialer {
         /**
          * Change state
          */
-        bool changeState(enum State newState);
+        bool changeToState(enum State newState);
         
         /**
          * read switches and debounce

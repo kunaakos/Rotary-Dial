@@ -61,7 +61,7 @@ bool RotaryDialer::ifDebounced() {
     }
 }
 
-bool RotaryDialer::changeState(enum State newState) {
+bool RotaryDialer::changeToState(enum State newState) {
     state = newState;
 }
 
@@ -90,7 +90,7 @@ bool RotaryDialer::update() {
                 //Serial.println("WAIT");
                 if (readyStatus == LOW && pulseStatus == LOW)
                 {
-                    changeState(LOWPULSE);
+                    changeToState(LOWPULSE);
                     startDial();
                 }
                 break;
@@ -99,13 +99,13 @@ bool RotaryDialer::update() {
                 //Serial.println("LOW ");
                 if (readyStatus == HIGH && pulseStatus == HIGH)
                 {
-                    changeState(HIGHPULSE);
+                    changeToState(HIGHPULSE);
                     number++;
                 }
                 else if (readyStatus == HIGH && pulseStatus == LOW)
                 {
                     completeDial();
-                    changeState(WAITING);
+                    changeToState(WAITING);
                 }
                 break;
 
@@ -113,7 +113,7 @@ bool RotaryDialer::update() {
                 //Serial.println("HIGH");
                 if (readyStatus == LOW && pulseStatus == LOW)
                 {
-                    changeState(LOWPULSE);
+                    changeToState(LOWPULSE);
                 }
                 break;
         }
