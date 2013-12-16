@@ -91,7 +91,7 @@ bool RotaryDialer::update() {
                 if (readyStatus == LOW && pulseStatus == LOW)
                 {
                     changeState(LOWPULSE);
-                    startDial(); 
+                    startDial();
                 }
                 break;
 
@@ -117,7 +117,7 @@ bool RotaryDialer::update() {
                 }
                 break;
         }
-    }   
+    }
     return hasCompletedNumber;
 }
 
