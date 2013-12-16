@@ -11,22 +11,22 @@
 // Require DEBOUNCE_DELAY milliseconds between state changes.
 #define DEBOUNCE_DELAY  15
 
-RotaryDialer::RotaryDialer(int _pinReady, int _pinPulse) : pinReady(_pinReady), pinPulse(_pinPulse), hasCompletedNumber(false), state(WAITING)
+RotaryDialer::RotaryDialer(int _readyPinNr, int _pulsePinNr) : readyPinNr(_readyPinNr), pulsePinNr(_pulsePinNr), dialedNumberReady(false), state(WAITING)
 {
-    pinMode(pinReady, INPUT);
-    pinMode(pinPulse, INPUT);
-    digitalWrite(pinReady, HIGH);
-    digitalWrite(pinPulse, HIGH);
+    pinMode(readyPinNr, INPUT);
+    pinMode(pulsePinNr, INPUT);
+    digitalWrite(readyPinNr, HIGH);
+    digitalWrite(pulsePinNr, HIGH);
     lastInputChangeMillis = millis();
 }
 
 bool RotaryDialer::readAndDebounce() {
-    bool readyStatusOld = readyStatus;
-    bool pulseStatusOld = pulseStatus;
-    readyStatus = digitalRead(pinReady);
-    pulseStatus = digitalRead(pinPulse);
+    bool readyPinStatusOld = readyPinStatus;
+    bool pulsePinStatusOld = pulsePinStatus;
+    readyPinStatus = digitalRead(readyPinNr);
+    pulsePinStatus = digitalRead(pulsePinNr);
 
-    if (readyStatus != readyStatusOld || pulseStatus !=pulseStatusOld)
+    if (readyPinStatus != readyPinStatusOld || pulsePinStatus != pulsePinStatusOld)
     {
         lastInputChangeMillis = millis();
         return false;
@@ -60,18 +60,18 @@ bool RotaryDialer::changeToState(enum State newState) {
 }
 
 void RotaryDialer::startDial() {
-    hasCompletedNumber = false;
-    number = 0;
+    dialedNumberReady = false;
+    dialedNumber = 0;
 }
 
 void RotaryDialer::completeDial() {
-    if (number > 0 && number <= 10)
+    if (dialedNumber > 0 && dialedNumber <= 10)
     {
-        if (number == 10) 
+        if (dialedNumber == 10) 
         {
-            number = 0;
+            dialedNumber = 0;
         }
-        hasCompletedNumber = true;
+        dialedNumberReady = true;
     }
 }
 
@@ -80,40 +80,40 @@ bool RotaryDialer::update() {
     {
         switch(state) {
             case WAITING:
-                if (readyStatus == LOW && pulseStatus == LOW)
+                if (readyPinStatus == LOW && pulsePinStatus == LOW)
                 {
                     changeToState(LOWPULSE);
                     startDial();
                 }
                 break;
             case LOWPULSE:
-                if (readyStatus == HIGH && pulseStatus == HIGH)
+                if (readyPinStatus == HIGH && pulsePinStatus == HIGH)
                 {
                     changeToState(HIGHPULSE);
-                    number++;
+                    dialedNumber++;
                 }
-                else if (readyStatus == HIGH && pulseStatus == LOW)
+                else if (readyPinStatus == HIGH && pulsePinStatus == LOW)
                 {
                     completeDial();
                     changeToState(WAITING);
                 }
                 break;
             case HIGHPULSE:
-                if (readyStatus == LOW && pulseStatus == LOW)
+                if (readyPinStatus == LOW && pulsePinStatus == LOW)
                 {
                     changeToState(LOWPULSE);
                 }
                 break;
         }
     }
-    return hasCompletedNumber;
+    return dialedNumberReady;
 }
 
 int RotaryDialer::getLastNumber() {
-    if (hasCompletedNumber)
+    if (dialedNumberReady)
     {
-        hasCompletedNumber = false;
-        return number;
+        dialedNumberReady = false;
+        return dialedNumber;
     }
     else
     {

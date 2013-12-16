@@ -8,13 +8,14 @@
  */
 class RotaryDialer {
     private:
-        int pinReady;
-        int pinPulse;
-        bool hasCompletedNumber;
-        int number;
+        int  readyPinNr;
+        bool readyPinStatus;
+        int  pulsePinNr;
+        bool pulsePinStatus;
+        bool dialedNumberReady;
+        int  dialedNumber;
         unsigned long lastInputChangeMillis;
-        bool readyStatus;
-        bool pulseStatus;
+        
         enum State {
             WAITING,
             LOWPULSE,
@@ -59,7 +60,7 @@ class RotaryDialer {
          * @param pulsePin connected to a NC (LOW) switch on the rotor
          *  which is opened (HIGH) during each pulse
          */
-        RotaryDialer(int readyPin, int pulsePin);
+        RotaryDialer(int readyPinNr, int pulsePinNr);
 
         /**
          * Check the pins and update state (in or out of a pulse,
