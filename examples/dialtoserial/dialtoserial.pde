@@ -12,12 +12,10 @@ RotaryDialer dialer = RotaryDialer(PIN_READY, PIN_PULSE);
 
 void setup() {
     Serial.begin(9600);
-    dialer.setup();
     Serial.println("OK");
 }
 
 void loop() {
-    delay(15);
     if (dialer.update()) {
         Serial.println(dialer.getLastNumber());
     }
