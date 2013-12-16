@@ -62,12 +62,6 @@ class RotaryDialer {
         RotaryDialer(int readyPin, int pulsePin);
 
         /**
-         * Initialize the pins
-         * digital read pins held HIGH (internal pull-up).
-         */
-        void setup();
-
-        /**
          * Check the pins and update state (in or out of a pulse,
          * dialing complete, etc). This must be called at least as
          * pulses; assuming 10 pulses per second, every 50ms.

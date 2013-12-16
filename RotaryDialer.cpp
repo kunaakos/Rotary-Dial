@@ -11,14 +11,8 @@
 // Require DEBOUNCE_DELAY milliseconds between state changes.
 #define DEBOUNCE_DELAY  15
 
-RotaryDialer::RotaryDialer(int readyPin, int pulsePin) :
-    pinReady(readyPin), pinPulse(pulsePin), hasCompletedNumber(false),
-    state(WAITING)
+RotaryDialer::RotaryDialer(int _pinReady, int _pinPulse) : pinReady(_pinReady), pinPulse(_pinPulse), hasCompletedNumber(false), state(WAITING)
 {
-
-}
-
-void RotaryDialer::setup() {
     pinMode(pinReady, INPUT);
     pinMode(pinPulse, INPUT);
     digitalWrite(pinReady, HIGH);
@@ -85,18 +79,14 @@ bool RotaryDialer::update() {
     if (readAndDebounce())
     {
         switch(state) {
-        
             case WAITING:
-                //Serial.println("WAIT");
                 if (readyStatus == LOW && pulseStatus == LOW)
                 {
                     changeToState(LOWPULSE);
                     startDial();
                 }
                 break;
-
             case LOWPULSE:
-                //Serial.println("LOW ");
                 if (readyStatus == HIGH && pulseStatus == HIGH)
                 {
                     changeToState(HIGHPULSE);
@@ -108,9 +98,7 @@ bool RotaryDialer::update() {
                     changeToState(WAITING);
                 }
                 break;
-
             case HIGHPULSE:
-                //Serial.println("HIGH");
                 if (readyStatus == LOW && pulseStatus == LOW)
                 {
                     changeToState(LOWPULSE);
