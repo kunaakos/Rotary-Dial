@@ -12,7 +12,9 @@ class RotaryDialer {
         int pinPulse;
         bool hasCompletedNumber;
         int number;
-        unsigned long lastStateChangeMillis;
+        unsigned long lastInputChangeMillis;
+        bool readyStatus;
+        bool pulseStatus;
         enum State {
             WAITING,
             LOWPULSE,
@@ -25,6 +27,11 @@ class RotaryDialer {
          */
         bool changeState(enum State newState);
         
+        /**
+         * 
+        */
+        bool readAndDebounce();
+
         /**
          * Check if enough time has elapsed since
          * the last state change (debounce).
